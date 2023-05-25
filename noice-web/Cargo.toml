@@ -1,0 +1,19 @@
+[package]
+name = "noice-web"
+edition.workspace = true
+authors.workspace = true
+categories = ["web-programming::web", ]
+description = """
+Silent Web Framework
+"""
+homepage.workspace = true
+keywords = ["web", "web-admin"]
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+version.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+silent = { workspace = true, features = ["full"] }

@@ -1,0 +1,16 @@
+[workspace]
+members = [
+    "noice-web"
+]
+
+[workspace.package]
+edition = "2021"
+authors = ["Hubert Shelley <hubertshelley@163.com>"]
+homepage = "https://github.com/hubertshelley/noice-web"
+license = "Apache-2.0"
+readme = "./readme.md"
+repository = "https://github.com/hubertshelley/noice-web"
+version = "0.1.0"
+
+[workspace.dependencies]
+silent = "0.6.3"
