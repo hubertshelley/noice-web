@@ -15,3 +15,7 @@ version = "0.1.0"
 
 [workspace.dependencies]
 silent = "0.6.3"
+sqlx = "0.6"
+tokio = "1.28.1"
+async-trait = "0.1.68"
+dotenv = "0.15.0"

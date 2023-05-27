@@ -1,10 +1,19 @@
 use std::sync::Arc;
+use dotenv::dotenv;
 use silent::prelude::*;
-use noice_web_app_user::user_route;
+use noice_core::DatabaseMiddleware;
+use noice_web_user::user_route;
 
 fn main() {
+    // 加载 .env 文件
+    dotenv().ok();
     logger::fmt().with_max_level(Level::DEBUG).init();
+    let database = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap().block_on(DatabaseMiddleware::new());
     let route = Route::new("")
+        .hook(database)
         .append(
             Route::new("api").append(
                 Route::new("user").append(
