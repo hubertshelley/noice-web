@@ -17,3 +17,5 @@ version.workspace = true
 
 [dependencies]
 silent = { workspace = true, features = ["full"] }
+
+noice-web-user = { path = "../apps/user" }
