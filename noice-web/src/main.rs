@@ -1,8 +1,8 @@
-use std::sync::Arc;
 use dotenv::dotenv;
-use silent::prelude::*;
 use noice_core::DatabaseMiddleware;
 use noice_web_user::user_route;
+use silent::prelude::*;
+use std::sync::Arc;
 
 fn main() {
     // 加载 .env 文件
@@ -11,21 +11,11 @@ fn main() {
     let database = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
-        .unwrap().block_on(DatabaseMiddleware::new());
+        .unwrap()
+        .block_on(DatabaseMiddleware::new());
     let route = Route::new("")
         .hook(database)
-        .append(
-            Route::new("api").append(
-                Route::new("user").append(
-                    user_route()
-                )
-            )
-        )
-        .append(
-            Route::new("<path:**>").handler(
-                Method::GET,
-                Arc::new(static_handler("static")),
-            )
-        );
+        .append(Route::new("api").append(Route::new("user").append(user_route())))
+        .append(Route::new("<path:**>").handler(Method::GET, Arc::new(static_handler("static"))));
     Server::new().bind_route(route).run();
 }
