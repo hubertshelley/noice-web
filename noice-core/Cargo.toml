@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+tokio = { workspace = true, features = ["full"] }
 silent = { workspace = true }
 sqlx = { workspace = true, features = ["runtime-tokio-rustls", "mysql"] }
 async-trait = { workspace = true }

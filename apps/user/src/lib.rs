@@ -1,5 +1,5 @@
-use silent::prelude::Route;
+mod routes;
+mod models;
+mod endpoints;
 
-pub fn user_route() -> Route {
-    Route::new("")
-}
+pub use routes::user_route;

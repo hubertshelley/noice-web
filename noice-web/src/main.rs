@@ -8,11 +8,7 @@ fn main() {
     // 加载 .env 文件
     dotenv().ok();
     logger::fmt().with_max_level(Level::DEBUG).init();
-    let database = tokio::runtime::Builder::new_current_thread()
-        .enable_all()
-        .build()
-        .unwrap()
-        .block_on(DatabaseMiddleware::new());
+    let database = DatabaseMiddleware::new();
     let route = Route::new("")
         .hook(database)
         .append(Route::new("api").append(Route::new("user").append(user_route())))

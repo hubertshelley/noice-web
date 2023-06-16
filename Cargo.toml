@@ -19,3 +19,8 @@ sqlx = "0.6"
 tokio = "1.28.2"
 async-trait = "0.1.68"
 dotenv = "0.15.0"
+serde = "1.0.164"
+anyhow = "1"
+
+noice-web-user = { path = "./apps/user" }
+noice-core = { path = "./noice-core" }
