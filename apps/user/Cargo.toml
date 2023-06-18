@@ -10,4 +10,5 @@ silent = { workspace = true, features = ["full"] }
 serde = { workspace = true, features = ["derive"] }
 sqlx = { workspace = true }
 anyhow = { workspace = true }
-noice-core = { workspace = true , path = "../../noice-core" }
+
+noice-core = { workspace = true }

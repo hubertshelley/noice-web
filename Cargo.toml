@@ -21,6 +21,5 @@ async-trait = "0.1.68"
 dotenv = "0.15.0"
 serde = "1.0.164"
 anyhow = "1"
-
-noice-web-user = { path = "./apps/user" }
-noice-core = { path = "./noice-core" }
+noice-web-user = { version = "0.1.0", path = "./apps/user" }
+noice-core = { version = "0.1.0", path = "./noice-core" }

@@ -1,6 +1,6 @@
-use sqlx::MySqlPool;
 use anyhow::Result;
 use serde::Serialize;
+use sqlx::MySqlPool;
 
 #[derive(Debug, Clone, sqlx::FromRow, Serialize)]
 pub(crate) struct User {
@@ -11,19 +11,24 @@ pub(crate) struct User {
 }
 
 impl User {
-    pub async fn registry(pool: &MySqlPool, username: String, password: String, name: Option<String>) -> Result<Self> {
-        let result = sqlx::query(
-            format!(r#"
+    pub async fn registry(
+        pool: &MySqlPool,
+        username: String,
+        password: String,
+        name: Option<String>,
+    ) -> Result<Self> {
+        let user_id = sqlx::query!(
+            r#"
             INSERT INTO noice_web_user (username, password, name)
-            VALUES ({:?}, {:?}, {:?})
+            VALUES (?, ?, ?)
             "#,
-            username,
-            password,
-            name).as_str()
+            username.clone(),
+            password.clone(),
+            name.clone()
         )
-            .execute(pool)
-            .await?;
-        let user_id = result.last_insert_id();
+        .execute(pool)
+        .await?
+        .last_insert_id();
         Ok(Self {
             id: user_id as i64,
             username,
@@ -39,11 +44,14 @@ impl User {
             "#,
             username
         )
-            .fetch_one(pool)
-            .await?;
+        .fetch_one(pool)
+        .await?;
         Ok(user)
     }
     pub fn check_password(&self, password: String) -> bool {
         self.password == password
+    }
+    pub fn get_token(&self) -> String {
+        format!("{}:{}", self.id, self.username)
     }
 }
