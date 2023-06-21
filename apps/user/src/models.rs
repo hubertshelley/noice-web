@@ -1,5 +1,6 @@
 use anyhow::Result;
 use serde::Serialize;
+use silent::prelude::argon2::{make_password, verify_password};
 use sqlx::MySqlPool;
 
 #[derive(Debug, Clone, sqlx::FromRow, Serialize)]
@@ -23,12 +24,12 @@ impl User {
             VALUES (?, ?, ?)
             "#,
             username.clone(),
-            password.clone(),
+            make_password(password.clone())?,
             name.clone()
         )
-        .execute(pool)
-        .await?
-        .last_insert_id();
+            .execute(pool)
+            .await?
+            .last_insert_id();
         Ok(Self {
             id: user_id as i64,
             username,
@@ -44,12 +45,15 @@ impl User {
             "#,
             username
         )
-        .fetch_one(pool)
-        .await?;
+            .fetch_one(pool)
+            .await?;
         Ok(user)
     }
     pub fn check_password(&self, password: String) -> bool {
-        self.password == password
+        verify_password(
+            self.password.clone(),
+            password,
+        ).unwrap_or(false)
     }
     pub fn get_token(&self) -> String {
         format!("{}:{}", self.id, self.username)
