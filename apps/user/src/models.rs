@@ -1,4 +1,5 @@
 use anyhow::Result;
+use cookie::{Cookie, CookieJar};
 use serde::Serialize;
 use silent::prelude::argon2::{make_password, verify_password};
 use sqlx::MySqlPool;
@@ -7,7 +8,7 @@ use sqlx::MySqlPool;
 pub(crate) struct User {
     pub id: i64,
     pub username: String,
-    pub password: String,
+    pub password: Option<String>,
     pub name: Option<String>,
 }
 
@@ -15,16 +16,20 @@ impl User {
     pub async fn registry(
         pool: &MySqlPool,
         username: String,
-        password: String,
+        password: Option<String>,
         name: Option<String>,
     ) -> Result<Self> {
+        let mut passwd = None;
+        if let Some(password) = password {
+            passwd = Some(make_password(password.clone())?);
+        }
         let user_id = sqlx::query!(
             r#"
             INSERT INTO noice_web_user (username, password, name)
             VALUES (?, ?, ?)
             "#,
             username.clone(),
-            make_password(password.clone())?,
+            passwd,
             name.clone()
         )
             .execute(pool)
@@ -33,7 +38,7 @@ impl User {
         Ok(Self {
             id: user_id as i64,
             username,
-            password,
+            password: passwd,
             name,
         })
     }
@@ -50,10 +55,33 @@ impl User {
         Ok(user)
     }
     pub fn check_password(&self, password: String) -> bool {
-        verify_password(
-            self.password.clone(),
-            password,
-        ).unwrap_or(false)
+        if let Some(passwd) = self.password.clone() {
+            verify_password(
+                passwd,
+                password,
+            ).unwrap_or(false)
+        } else {
+            false
+        }
+    }
+    pub async fn update_password(&self, pool: &MySqlPool, password: String) -> Result<()> {
+        sqlx::query!(
+            r#"
+            UPDATE noice_web_user SET password = ? WHERE id = ?
+            "#,
+            make_password(password)?,
+            self.id
+        )
+            .fetch_one(pool)
+            .await?;
+        Ok(())
+    }
+    pub fn get_cookie(&self) -> CookieJar {
+        let mut jar = CookieJar::new();
+        jar.add(
+            Cookie::new("id", self.id.to_string())
+        );
+        jar
     }
     pub fn get_token(&self) -> String {
         format!("{}:{}", self.id, self.username)

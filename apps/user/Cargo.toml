@@ -6,9 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-trait = { workspace = true }
 silent = { workspace = true, features = ["full"] }
 serde = { workspace = true, features = ["derive"] }
 sqlx = { workspace = true }
 anyhow = { workspace = true }
+serde_json = { workspace = true }
+cookie = { workspace = true }
 
 noice-core = { workspace = true }

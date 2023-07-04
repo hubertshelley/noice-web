@@ -1,4 +1,5 @@
 mod db;
+mod cookies;
 
 pub use db::DatabaseMiddleware;
 use silent::{Request, Result, SilentError, StatusCode};
@@ -13,3 +14,5 @@ pub fn get_db(req: &Request) -> Result<&Arc<MySqlPool>> {
             "Failed to get database pool from request".to_string(),
         ))
 }
+
+pub use cookies::{set_cookie, get_cookie};

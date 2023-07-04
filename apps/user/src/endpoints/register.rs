@@ -6,7 +6,7 @@ use silent::{Request, Result, SilentError, StatusCode};
 #[derive(Deserialize, Debug)]
 struct RegisterRequest {
     username: String,
-    password: String,
+    password: Option<String>,
     name: Option<String>,
 }
 
@@ -36,13 +36,13 @@ pub(crate) async fn register(mut req: Request) -> Result<RegisterResponse> {
         register_request.password,
         register_request.name,
     )
-    .await
-    .map_err(|e| {
-        SilentError::business_error(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Failed to register user: {}", e),
-        )
-    })?
-    .into();
+        .await
+        .map_err(|e| {
+            SilentError::business_error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to register user: {}", e),
+            )
+        })?
+        .into();
     Ok(user)
 }
