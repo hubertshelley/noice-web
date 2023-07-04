@@ -1,8 +1,10 @@
-use anyhow::Result;
 use cookie::{Cookie, CookieJar};
+use cookie::time::Duration;
 use serde::Serialize;
 use silent::prelude::argon2::{make_password, verify_password};
+use silent::{Request, SilentError, Result, StatusCode};
 use sqlx::MySqlPool;
+use noice_core::{get_cookie, get_db};
 
 #[derive(Debug, Clone, sqlx::FromRow, Serialize)]
 pub(crate) struct User {
@@ -21,7 +23,7 @@ impl User {
     ) -> Result<Self> {
         let mut passwd = None;
         if let Some(password) = password {
-            passwd = Some(make_password(password.clone())?);
+            passwd = Some(make_password(password)?);
         }
         let user_id = sqlx::query!(
             r#"
@@ -33,7 +35,11 @@ impl User {
             name.clone()
         )
             .execute(pool)
-            .await?
+            .await.map_err(|e|
+            SilentError::business_error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to create user: {}", e),
+            ))?
             .last_insert_id();
         Ok(Self {
             id: user_id as i64,
@@ -51,7 +57,26 @@ impl User {
             username
         )
             .fetch_one(pool)
-            .await?;
+            .await.map_err(|e|
+            SilentError::business_error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to fetch user: {}", e),
+            ))?;
+        Ok(user)
+    }
+    pub async fn fetch_by_id(pool: &MySqlPool, id: i64) -> Result<Self> {
+        let user = sqlx::query_as!(
+            User,
+            r#"
+            SELECT * FROM noice_web_user WHERE id = ?
+            "#,
+            id
+        )
+            .fetch_one(pool)
+            .await.map_err(|e| SilentError::business_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to fetch user: {}", e),
+        ))?;
         Ok(user)
     }
     pub fn check_password(&self, password: String) -> bool {
@@ -73,17 +98,40 @@ impl User {
             self.id
         )
             .fetch_one(pool)
-            .await?;
+            .await.map_err(|e|
+            SilentError::business_error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to update password: {}", e),
+            ))?;
         Ok(())
     }
     pub fn get_cookie(&self) -> CookieJar {
         let mut jar = CookieJar::new();
         jar.add(
-            Cookie::new("id", self.id.to_string())
+            Cookie::build("id", self.id.to_string()).path("/").max_age(Duration::hours(2)).finish()
         );
         jar
     }
     pub fn get_token(&self) -> String {
         format!("{}:{}", self.id, self.username)
+    }
+
+    pub async fn get_user(req: &Request) -> Result<Self> {
+        let pool = get_db(req)?;
+        let cookies = get_cookie(req)?;
+        if let Some(id) = cookies.get("id").map(|c| c.value()) {
+            Self::fetch_by_id(pool, id.parse().map_err(|e|
+                SilentError::business_error(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to parse user id: {}", e),
+                ))?).await
+        } else {
+            Err(
+                SilentError::business_error(
+                    StatusCode::UNAUTHORIZED,
+                    "Unauthorized".to_string(),
+                )
+            )
+        }
     }
 }

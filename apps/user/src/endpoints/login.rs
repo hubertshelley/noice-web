@@ -25,10 +25,10 @@ impl From<User> for LoginResponse {
     }
 }
 
-struct LoginEndPoint;
+pub struct LoginEndpoint;
 
 #[async_trait]
-impl Handler for LoginEndPoint {
+impl Handler for LoginEndpoint {
     async fn call(&self, mut req: Request) -> Result<Response> {
         let login_request: LoginRequest = req.json_parse().await?;
         let pool = get_db(&req)?;
@@ -43,10 +43,11 @@ impl Handler for LoginEndPoint {
         match user.check_password(login_request.password) {
             true => {
                 let mut res = Response::empty();
-                res.set_body(serde_json::to_vec(&user)?.into());
                 set_cookie(&mut res, user.get_cookie());
+                let user: LoginResponse = user.into();
+                res.set_body(serde_json::to_vec(&user)?.into());
                 Ok(res)
-            },
+            }
             false => Err(SilentError::business_error(
                 StatusCode::UNAUTHORIZED,
                 "Wrong password".to_string(),
@@ -55,6 +56,7 @@ impl Handler for LoginEndPoint {
     }
 }
 
+#[allow(dead_code)]
 pub(crate) async fn login(mut req: Request) -> Result<LoginResponse> {
     let login_request: LoginRequest = req.json_parse().await?;
     let pool = get_db(&req)?;
