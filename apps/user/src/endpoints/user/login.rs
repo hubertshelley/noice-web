@@ -34,10 +34,10 @@ impl Handler for LoginEndpoint {
         let pool = get_db(&req)?;
         let user = User::fetch_by_username(pool, login_request.username)
             .await
-            .map_err(|e| {
+            .map_err(|_e| {
                 SilentError::business_error(
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Failed to Login user: {}", e),
+                    "User not found".to_string(),
                 )
             })?;
         match user.check_password(login_request.password) {

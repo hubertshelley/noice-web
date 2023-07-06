@@ -1,4 +1,4 @@
-mod organization;
+mod tenant;
 mod third_part;
 mod user;
 
