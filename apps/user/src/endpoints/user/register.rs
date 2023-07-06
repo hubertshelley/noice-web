@@ -27,7 +27,7 @@ impl From<User> for RegisterResponse {
     }
 }
 
-pub(crate) async fn register(mut req: Request) -> Result<RegisterResponse> {
+pub async fn register(mut req: Request) -> Result<RegisterResponse> {
     let register_request: RegisterRequest = req.json_parse().await?;
     let pool = get_db(&req)?;
     let user = User::registry(

@@ -8,7 +8,7 @@ struct UpdatePasswordRequest {
     password: String,
 }
 
-pub(crate) async fn update_password(mut req: Request) -> Result<String> {
+pub async fn update_password(mut req: Request) -> Result<String> {
     let update_password_request: UpdatePasswordRequest = req.json_parse().await?;
     let pool = get_db(&req)?;
     let user = get_user(&req).await?;
