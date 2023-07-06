@@ -2,12 +2,12 @@ use cookie::{Cookie, CookieJar};
 use cookie::time::Duration;
 use serde::Serialize;
 use silent::prelude::argon2::{make_password, verify_password};
-use silent::{Request, SilentError, Result, StatusCode};
+use silent::{SilentError, Result, StatusCode};
 use sqlx::MySqlPool;
-use noice_core::{get_cookie, get_db};
+
 
 #[derive(Debug, Clone, sqlx::FromRow, Serialize)]
-pub(crate) struct User {
+pub struct User {
     pub id: i64,
     pub username: String,
     pub password: Option<String>,
@@ -114,24 +114,5 @@ impl User {
     }
     pub fn get_token(&self) -> String {
         format!("{}:{}", self.id, self.username)
-    }
-
-    pub async fn get_user(req: &Request) -> Result<Self> {
-        let pool = get_db(req)?;
-        let cookies = get_cookie(req)?;
-        if let Some(id) = cookies.get("id").map(|c| c.value()) {
-            Self::fetch_by_id(pool, id.parse().map_err(|e|
-                SilentError::business_error(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Failed to parse user id: {}", e),
-                ))?).await
-        } else {
-            Err(
-                SilentError::business_error(
-                    StatusCode::UNAUTHORIZED,
-                    "Unauthorized".to_string(),
-                )
-            )
-        }
     }
 }
