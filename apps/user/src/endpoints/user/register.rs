@@ -11,7 +11,7 @@ struct RegisterRequest {
 }
 
 #[derive(Serialize, Debug)]
-pub(crate) struct RegisterResponse {
+pub struct RegisterResponse {
     id: i64,
     username: String,
     name: Option<String>,
