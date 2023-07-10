@@ -25,3 +25,4 @@ noice-web-user = { version = "0.1.0", path = "./apps/user" }
 noice-core = { version = "0.1.0", path = "./noice-core" }
 cookie = "0.17.0"
 serde_json = "1.0.100"
+async-session = "3.0.0"

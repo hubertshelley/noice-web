@@ -1,3 +1,4 @@
+use async_session::Session;
 use cookie::{Cookie};
 use cookie::time::Duration;
 use serde::Serialize;
@@ -107,6 +108,11 @@ impl User {
     }
     pub fn get_cookie(&self) -> Cookie {
         Cookie::build("id", self.id.to_string()).path("/").max_age(Duration::hours(2)).finish()
+    }
+    pub fn get_session(&self) -> Result<Session> {
+        let mut session = Session::new();
+        session.insert("user_id", self.id)?;
+        Ok(session)
     }
     pub fn get_token(&self) -> String {
         format!("{}:{}", self.id, self.username)

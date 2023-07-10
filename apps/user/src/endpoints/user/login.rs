@@ -1,8 +1,11 @@
+use tokio::sync::RwLockWriteGuard;
+use async_session::{MemoryStore, SessionStore};
 use crate::models::User;
-use noice_core::{get_db};
+use noice_core::{get_db, get_session};
 use serde::{Deserialize, Serialize};
 use silent::{Handler, Request, Response, Result, SilentError, StatusCode};
 use async_trait::async_trait;
+use cookie::Cookie;
 
 #[derive(Deserialize, Debug)]
 struct LoginRequest {
@@ -42,11 +45,30 @@ impl Handler for LoginEndpoint {
             })?;
         match user.check_password(login_request.password) {
             true => {
+                let store: RwLockWriteGuard<MemoryStore> = get_session(&req)?.write().await;
                 let mut res = Response::empty();
-                res.cookies_mut().add(user.get_cookie().into_owned());
-                let user: LoginResponse = user.into();
-                res.set_body(serde_json::to_vec(&user)?.into());
-                Ok(res)
+                let session = user.get_session()?;
+                let cookie_value = store.store_session(session).await.map_err(
+                    |e| SilentError::business_error(
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        format!("Failed to store session: {}", e),
+                    )
+                )?;
+                if let Some(cookie_value) = cookie_value {
+                    res.cookies_mut().add(
+                        Cookie::build("noice-web-session", cookie_value)
+                            .max_age(cookie::time::Duration::hours(2))
+                            .finish()
+                    );
+                    let user: LoginResponse = user.into();
+                    res.set_body(serde_json::to_vec(&user)?.into());
+                    Ok(res)
+                } else {
+                    Err(SilentError::business_error(
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "Failed to store session".to_string(),
+                    ))
+                }
             }
             false => Err(SilentError::business_error(
                 StatusCode::UNAUTHORIZED,

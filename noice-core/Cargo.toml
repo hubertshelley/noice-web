@@ -11,3 +11,4 @@ silent = { workspace = true }
 sqlx = { workspace = true, features = ["runtime-tokio-rustls", "mysql"] }
 async-trait = { workspace = true }
 cookie = { workspace = true, features = ["secure", "percent-encode"] }
+async-session = { workspace = true }
