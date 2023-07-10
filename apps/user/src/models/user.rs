@@ -1,4 +1,4 @@
-use cookie::{Cookie, CookieJar};
+use cookie::{Cookie};
 use cookie::time::Duration;
 use serde::Serialize;
 use silent::prelude::argon2::{make_password, verify_password};
@@ -105,12 +105,8 @@ impl User {
             ))?;
         Ok(())
     }
-    pub fn get_cookie(&self) -> CookieJar {
-        let mut jar = CookieJar::new();
-        jar.add(
-            Cookie::build("id", self.id.to_string()).path("/").max_age(Duration::hours(2)).finish()
-        );
-        jar
+    pub fn get_cookie(&self) -> Cookie {
+        Cookie::build("id", self.id.to_string()).path("/").max_age(Duration::hours(2)).finish()
     }
     pub fn get_token(&self) -> String {
         format!("{}:{}", self.id, self.username)

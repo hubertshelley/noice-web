@@ -1,5 +1,5 @@
 use crate::models::User;
-use noice_core::{get_db, set_cookie};
+use noice_core::{get_db};
 use serde::{Deserialize, Serialize};
 use silent::{Handler, Request, Response, Result, SilentError, StatusCode};
 use async_trait::async_trait;
@@ -43,7 +43,7 @@ impl Handler for LoginEndpoint {
         match user.check_password(login_request.password) {
             true => {
                 let mut res = Response::empty();
-                set_cookie(&mut res, user.get_cookie());
+                res.cookies_mut().add(user.get_cookie().into_owned());
                 let user: LoginResponse = user.into();
                 res.set_body(serde_json::to_vec(&user)?.into());
                 Ok(res)
