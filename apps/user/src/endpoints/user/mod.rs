@@ -1,6 +1,7 @@
 mod login;
 mod register;
 mod update_password;
+mod info;
 
 use std::sync::Arc;
 use silent::Method;
@@ -14,4 +15,5 @@ pub fn user_route() -> Route {
             Arc::new(login::LoginEndpoint {}),
         ))
         .append(Route::new("updatePassword").post(update_password::update_password))
+        .append(Route::new("info").get(info::info))
 }
