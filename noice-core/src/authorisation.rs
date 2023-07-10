@@ -27,8 +27,14 @@ impl AuthorisationMiddleware {
 #[async_trait]
 impl MiddleWareHandler for AuthorisationMiddleware {
     async fn pre_request(&self, req: &mut Request, _res: &mut Response) -> Result<()> {
-        let mut extensions = req.extensions_mut();
-        let cookies = req.cookies_mut();
+        let cookies = req.cookies().clone();
+        let store = req.extensions().get::<Arc<RwLock<MemoryStore>>>()
+            .ok_or(SilentError::business_error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Failed to get session from request".to_string(),
+            ))?.clone();
+        let store = store.write().await;
+        let extensions = req.extensions_mut();
         let pool = extensions.get::<Arc<MySqlPool>>()
             .ok_or(SilentError::business_error(
                 StatusCode::INTERNAL_SERVER_ERROR,
@@ -40,11 +46,6 @@ impl MiddleWareHandler for AuthorisationMiddleware {
             return Ok(());
         }
         let cookie = cookie.unwrap();
-        let store = extensions.get::<Arc<RwLock<MemoryStore>>>()
-            .ok_or(SilentError::business_error(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Failed to get session from request".to_string(),
-            ))?.write().await;
         let session = store.load_session(
             cookie.value().to_string()
         ).await.map_err(

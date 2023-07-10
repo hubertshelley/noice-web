@@ -1,6 +1,6 @@
 use silent::{Request, Result, SilentError, StatusCode};
 use noice_core::{get_db};
-use crate::models::User;
+use noice_core::models::User;
 
 pub async fn get_user(req: &Request) -> Result<User> {
     let pool = get_db(req)?;

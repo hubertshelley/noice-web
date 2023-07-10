@@ -1,5 +1,5 @@
 use dotenv::dotenv;
-use noice_core::{DatabaseMiddleware, SessionMiddleware};
+use noice_core::{AuthorisationMiddleware, DatabaseMiddleware, SessionMiddleware};
 use noice_web_user::user_route;
 use silent::prelude::*;
 use std::sync::Arc;

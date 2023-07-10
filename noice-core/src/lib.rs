@@ -6,6 +6,7 @@ pub mod models;
 
 pub use db::DatabaseMiddleware;
 pub use session::SessionMiddleware;
+pub use authorisation::AuthorisationMiddleware;
 use silent::{Request, Result, SilentError, StatusCode};
 use sqlx::MySqlPool;
 use std::sync::Arc;
