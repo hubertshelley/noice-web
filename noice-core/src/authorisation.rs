@@ -1,11 +1,9 @@
 use std::sync::Arc;
-use async_session::{MemoryStore, Session, SessionStore};
+use async_session::{MemoryStore, SessionStore};
 use silent::{MiddleWareHandler, Request, Response, Result, SilentError, StatusCode};
 use async_trait::async_trait;
-use cookie::Cookie;
 use sqlx::MySqlPool;
-use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
-use crate::{get_db, get_session};
+use tokio::sync::{RwLock};
 use crate::models::{User, UserAuth};
 
 
