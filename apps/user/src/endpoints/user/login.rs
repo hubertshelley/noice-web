@@ -1,7 +1,7 @@
 use tokio::sync::RwLockWriteGuard;
 use async_session::{MemoryStore, SessionStore};
 use crate::models::User;
-use noice_core::{get_db, get_session};
+use noice_core::{get_db, get_session, models::User};
 use serde::{Deserialize, Serialize};
 use silent::{Handler, Request, Response, Result, SilentError, StatusCode};
 use async_trait::async_trait;

@@ -1,5 +1,5 @@
 use crate::models::User;
-use noice_core::get_db;
+use noice_core::{get_db, models::User};
 use serde::{Deserialize, Serialize};
 use silent::{Request, Result, SilentError, StatusCode};
 

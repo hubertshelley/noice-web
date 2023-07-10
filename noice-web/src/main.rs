@@ -10,9 +10,11 @@ fn main() {
     logger::fmt().with_max_level(Level::DEBUG).init();
     let database = DatabaseMiddleware::new();
     let session = SessionMiddleware::new();
+    let auth = AuthorisationMiddleware::new();
     let route = Route::new("")
         .hook(database)
         .hook(session)
+        .hook(auth)
         .append(Route::new("api").append(Route::new("user").append(user_route())))
         .append(Route::new("<path:**>").handler(Method::GET, Arc::new(static_handler("static"))));
     Server::new().bind_route(route).run();

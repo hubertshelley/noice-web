@@ -7,8 +7,9 @@ edition = "2021"
 
 [dependencies]
 tokio = { workspace = true, features = ["full"] }
-silent = { workspace = true }
+silent = { workspace = true, features = ["full"] }
 sqlx = { workspace = true, features = ["runtime-tokio-rustls", "mysql"] }
 async-trait = { workspace = true }
 cookie = { workspace = true, features = ["secure", "percent-encode"] }
 async-session = { workspace = true }
+serde = { workspace = true, features = ["derive"] }

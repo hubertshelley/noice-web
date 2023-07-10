@@ -1,4 +1,4 @@
-use noice_core::get_db;
+use noice_core::{get_db, models::User};
 use serde::{Deserialize};
 use silent::{Request, Result};
 use crate::utils::get_user;

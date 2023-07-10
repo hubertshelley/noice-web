@@ -6,6 +6,11 @@ use silent::prelude::argon2::{make_password, verify_password};
 use silent::{SilentError, Result, StatusCode};
 use sqlx::MySqlPool;
 
+#[derive(Debug, Clone)]
+pub enum UserAuth {
+    User(User),
+    AnyOneUser,
+}
 
 #[derive(Debug, Clone, sqlx::FromRow, Serialize)]
 pub struct User {
