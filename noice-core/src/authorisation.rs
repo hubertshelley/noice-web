@@ -34,17 +34,17 @@ impl MiddleWareHandler for AuthorisationMiddleware {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Failed to get database pool from request".to_string(),
             ))?;
-        let store = extensions.get::<Arc<RwLock<MemoryStore>>>()
-            .ok_or(SilentError::business_error(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Failed to get session from request".to_string(),
-            ))?.read().await;
         let cookie = cookies.get("noice-web-session");
         if cookie.is_none() {
             extensions.insert(self.user.clone());
             return Ok(());
         }
         let cookie = cookie.unwrap();
+        let store = extensions.get::<Arc<RwLock<MemoryStore>>>()
+            .ok_or(SilentError::business_error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Failed to get session from request".to_string(),
+            ))?.write().await;
         let session = store.load_session(
             cookie.value().to_string()
         ).await.map_err(
