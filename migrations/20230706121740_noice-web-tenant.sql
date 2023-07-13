@@ -13,7 +13,7 @@ CREATE TABLE `noice_db`.`noice_web_tenant_user`
     UNIQUE INDEX `code_idx` (`employee_code`) USING BTREE COMMENT '员工码索引'
 ) COMMENT = '租户员工表';
 
-CREATE TABLE `noice_db`.`tenant`
+CREATE TABLE `noice_db`.`noice_web_tenant`
 (
     `id`       bigint      NOT NULL COMMENT 'ID',
     `name`     varchar(36) NOT NULL COMMENT '租户名称',
