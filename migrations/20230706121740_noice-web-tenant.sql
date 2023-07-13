@@ -15,7 +15,9 @@ CREATE TABLE `noice_db`.`noice_web_tenant_user`
 
 CREATE TABLE `noice_db`.`tenant`
 (
-    `id`   bigint      NOT NULL COMMENT 'ID',
-    `name` varchar(36) NOT NULL COMMENT '租户名称',
-    PRIMARY KEY (`id`)
+    `id`       bigint      NOT NULL COMMENT 'ID',
+    `name`     varchar(36) NOT NULL COMMENT '租户名称',
+    `owner_id` bigint      NOT NULL COMMENT '拥有者ID',
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `id_idx` (`id`) USING BTREE COMMENT 'ID索引'
 ) COMMENT = '租户表';
