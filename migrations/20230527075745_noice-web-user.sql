@@ -6,4 +6,6 @@ CREATE TABLE `noice_db`.`noice_web_user`
     `password` varchar(255) NULL COMMENT '密码',
     `name`     varchar(36)  NULL COMMENT '用户名称',
     PRIMARY KEY (`id`)
+    UNIQUE INDEX `id_idx` (`id`) USING BTREE COMMENT 'ID索引',
+    UNIQUE INDEX `username_idx` (`username`) USING BTREE COMMENT '用户名索引',
 ) COMMENT = '用户表';
