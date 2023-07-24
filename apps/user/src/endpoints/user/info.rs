@@ -1,5 +1,5 @@
-use noice_core::{get_db, models::User};
-use serde::{Deserialize, Serialize};
+use noice_core::models::User;
+use serde::Serialize;
 use silent::{Request, Result, SilentError, StatusCode};
 use noice_core::models::UserAuth;
 
