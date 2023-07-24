@@ -114,8 +114,7 @@ impl User {
     pub fn get_cookie(&self) -> Cookie {
         Cookie::build("id", self.id.to_string()).path("/").max_age(Duration::hours(2)).finish()
     }
-    pub fn get_session(&self) -> Result<Session> {
-        let mut session = Session::new();
+    pub fn set_session(&self, mut session: Session) -> Result<Session> {
         session.insert("user_id", self.id)?;
         Ok(session)
     }

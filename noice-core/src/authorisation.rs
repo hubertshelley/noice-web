@@ -1,9 +1,8 @@
 use std::sync::Arc;
-use async_session::{MemoryStore, SessionStore};
+use async_session::Session;
 use silent::{MiddleWareHandler, Request, Response, Result, SilentError, StatusCode};
 use async_trait::async_trait;
 use sqlx::MySqlPool;
-use tokio::sync::{RwLock};
 use crate::models::{User, UserAuth};
 
 
@@ -27,36 +26,22 @@ impl AuthorisationMiddleware {
 #[async_trait]
 impl MiddleWareHandler for AuthorisationMiddleware {
     async fn pre_request(&self, req: &mut Request, _res: &mut Response) -> Result<()> {
-        let cookies = req.cookies().clone();
-        let store = req.extensions().get::<Arc<RwLock<MemoryStore>>>()
-            .ok_or(SilentError::business_error(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Failed to get session from request".to_string(),
-            ))?.clone();
-        let store = store.write().await;
         let extensions = req.extensions_mut();
         let pool = extensions.get::<Arc<MySqlPool>>()
             .ok_or(SilentError::business_error(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Failed to get database pool from request".to_string(),
             ))?;
-        let cookie = cookies.get("noice-web-session");
-        if cookie.is_none() {
-            extensions.insert(self.user.clone());
-            return Ok(());
-        }
-        let cookie = cookie.unwrap();
-        let session = store.load_session(
-            cookie.value().to_string()
-        ).await.map_err(
-            |e| SilentError::business_error(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to load session: {}", e),
-            )
-        )?;
-        if let Some(session) = session {
+        if let Some(session) = extensions.get::<Session>() {
             if let Some(user_id) = session.get::<i64>("user_id") {
-                let user = User::fetch_by_id(pool, user_id).await?;
+                let user = User::fetch_by_id(pool, user_id).await.map_err(
+                    |e| {
+                        SilentError::business_error(
+                            StatusCode::UNAUTHORIZED,
+                            e.to_string(),
+                        )
+                    }
+                )?;
                 extensions.insert(UserAuth::User(user));
                 return Ok(());
             }

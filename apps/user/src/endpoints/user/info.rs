@@ -22,10 +22,8 @@ impl From<User> for RegisterResponse {
 }
 
 pub async fn info(req: Request) -> Result<RegisterResponse> {
-    if let Some(user_auth) = req.extensions().get::<UserAuth>() {
-        if let UserAuth::User(user) = user_auth {
-            return Ok(RegisterResponse::from(user.clone()));
-        }
+    if let Some(UserAuth::User(user)) = req.extensions().get::<UserAuth>() {
+        return Ok(RegisterResponse::from(user.clone()));
     }
     Err(SilentError::business_error(
         StatusCode::INTERNAL_SERVER_ERROR,
