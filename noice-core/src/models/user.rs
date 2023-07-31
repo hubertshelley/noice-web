@@ -12,6 +12,21 @@ pub enum UserAuth {
     AnyOneUser,
 }
 
+impl UserAuth {
+    pub fn is_anyone(&self) -> bool {
+        matches!(self, UserAuth::AnyOneUser)
+    }
+    pub fn get_user(&self) -> Result<&User> {
+        match self {
+            UserAuth::User(user) => Ok(user),
+            _ => Err(SilentError::business_error(
+                StatusCode::FORBIDDEN,
+                "User is not logged in".to_string(),
+            )),
+        }
+    }
+}
+
 #[derive(Debug, Clone, sqlx::FromRow, Serialize)]
 pub struct User {
     pub id: i64,

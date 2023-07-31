@@ -1,6 +1,6 @@
 use noice_core::models::User;
 use serde::Serialize;
-use silent::{Request, Result, SilentError, StatusCode};
+use silent::{Request, Result};
 use noice_core::models::UserAuth;
 
 
@@ -22,11 +22,6 @@ impl From<User> for RegisterResponse {
 }
 
 pub async fn info(req: Request) -> Result<RegisterResponse> {
-    if let Some(UserAuth::User(user)) = req.extensions().get::<UserAuth>() {
-        return Ok(RegisterResponse::from(user.clone()));
-    }
-    Err(SilentError::business_error(
-        StatusCode::INTERNAL_SERVER_ERROR,
-        format!("Failed to register user: {}", "e"),
-    ))
+    let user = req.extensions().get::<UserAuth>().unwrap().get_user()?;
+    Ok(user.clone().into())
 }
